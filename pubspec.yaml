@@ -1,0 +1,35 @@
+name: learn_1
+description: "A new Flutter project."
+publish_to: 'none'
+version: 0.1.0
+
+environment:
+  sdk: '>=3.2.3 <4.0.0'
+
+dependencies:
+  flame: ^1.15.0
+  flutter:
+    sdk: flutter
+  flutter_svg: ^2.0.10+1
+  get: ^4.6.6
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/pets/snowball.png
+    - assets/images/pets/cat.png
+    - assets/images/pets/shadow.png
+    - assets/images/pets/luna.png
+    - assets/images/pets/parts/head.png
+    - assets/images/pets/parts/body.png
+    - assets/images/pets/parts/legs.png
+    - assets/images/emotions/happy.png
+    - assets/images/emotions/sad.png
+    - assets/images/environments/Home.png
+    - assets/images/environments/Park.png
+    - assets/images/environments/Beach.png
