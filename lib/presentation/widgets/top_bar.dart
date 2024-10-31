@@ -2,11 +2,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:learn_1/data/models/resource_model.dart';
 import 'package:learn_1/domain/entities/pet.dart';
 import 'package:learn_1/presentation/widgets/Button/currency_button.dart';
 import '../controllers/game_controller.dart';
- 
 import 'resource_button.dart';
 import 'pet_button.dart';
 
@@ -16,10 +14,11 @@ class TopBar extends StatelessWidget {
     final GameController gameController = Get.find<GameController>();
 
     return Container(
-      padding: EdgeInsets.symmetric(vertical: 10),
+      padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
       color: Colors.purple,
       child: Column(
         children: [
+          // Bar untuk Coins dan Stars
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
@@ -30,6 +29,7 @@ class TopBar extends StatelessWidget {
                         label: gameController.coins.value.toString(),
                         color: Colors.yellow,
                       )),
+                  SizedBox(height: 5),
                   Obx(() => CurrencyButton(
                         icon: Icons.star,
                         label: gameController.stars.value.toString(),
@@ -37,61 +37,51 @@ class TopBar extends StatelessWidget {
                       )),
                 ],
               ),
-              // Membungkus setiap ResourceButton dengan Obx
+              // Resource Buttons
               Obx(() => ResourceButton(
                     icon: Icons.fastfood,
                     label: 'Food',
                     amount: gameController.foodAmount.value,
                     color: Colors.red,
-                    onTap: () {
-                      print('Food button tapped');
-                      gameController.buyResourceAction(
-                        ResourceModel(name: 'Food', cost: 10, type: 'food'),
-                      );
-                    },
+                    resourceType: 'food',
                   )),
               Obx(() => ResourceButton(
                     icon: Icons.cleaning_services,
                     label: 'Groom',
                     amount: gameController.groomingAmount.value,
                     color: Colors.blue,
-                    onTap: () {
-                      print('Groom button tapped');
-                      gameController.buyResourceAction(
-                        ResourceModel(name: 'Grooming Kit', cost: 15, type: 'grooming'),
-                      );
-                    },
+                    resourceType: 'grooming',
                   )),
               Obx(() => ResourceButton(
                     icon: Icons.toys,
                     label: 'Play',
                     amount: gameController.playAmount.value,
                     color: Colors.green,
-                    onTap: () {
-                      print('Play button tapped');
-                      gameController.buyResourceAction(
-                        ResourceModel(name: 'Toy', cost: 20, type: 'play'),
-                      );
-                    },
+                    resourceType: 'play',
                   )),
             ],
           ),
           SizedBox(height: 30),
-          // Lower Layer: Pet Selection and Stats
-          Expanded(
+          // Pet Button sebagai Drop Target dan Selector
+          Container(
+            height: 150,
             child: Obx(() {
               return ListView.builder(
                 scrollDirection: Axis.horizontal,
                 itemCount: gameController.pets.length,
                 itemBuilder: (context, index) {
-                  Pet pet = gameController.pets[index];
-                  return PetButton(
+                  Rx<Pet> pet = gameController.pets[index];
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                    child: PetButton(
                       pet: pet,
-                      isSelected: gameController.selectedPet.value == pet);
+                      isSelected: gameController.selectedPet.value?.value.name == pet.value.name,
+                    ),
+                  );
                 },
               );
             }),
-          )
+          ),
         ],
       ),
     );

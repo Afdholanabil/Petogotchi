@@ -8,13 +8,15 @@ import 'package:learn_1/domain/usecase/buy_resource.dart';
 import 'package:learn_1/domain/usecase/unlock_resource.dart';
 import '../../domain/entities/pet.dart';
 import '../../domain/entities/resource.dart';
+import '../../domain/entities/resource_data.dart'; // Import ResourceData
 
 class GameController extends GetxController {
   // Observables
   var coins = 100.obs;
   var stars = 0.obs;
-  var pets = <Pet>[].obs;
-  var selectedPet = Rx<Pet?>(null);
+  var pets = <Rx<Pet>>[].obs; // Menggunakan Rx<Pet> untuk setiap pet
+  var selectedPet = Rx<Rx<Pet>?>(
+      null); // Ubah dari Rx<Pet?> menjadi Rx<Rx<Pet>?>
 
   // Add resource amounts
   var foodAmount = 0.obs;
@@ -50,19 +52,27 @@ class GameController extends GetxController {
 
   void _startStatTimer() {
     _statTimer = Timer.periodic(Duration(seconds: 10), (timer) {
-      pets.forEach((pet) {
+      pets.forEach((rxPet) {
+        Pet pet = rxPet.value;
         pet.energy = (pet.energy - 1).clamp(0, 100);
         pet.cleanliness = (pet.cleanliness - 1).clamp(0, 100);
         pet.happiness = (pet.happiness - 1).clamp(0, 100);
+        rxPet.refresh(); // Memicu update untuk pet tertentu
+        print('Pet ${pet.name} stats updated: Energy=${pet.energy}, Cleanliness=${pet.cleanliness}, Happiness=${pet.happiness}');
       });
-      update(); // Update the UI if using GetBuilder or similar
     });
   }
 
   void fetchPets() async {
     List<Pet> fetchedPets = await buyResource.repository.getPets();
-    pets.assignAll(fetchedPets);
-    selectedPet.value = fetchedPets.first; // Tetapkan pet pertama sebagai selectedPet
+    pets.assignAll(fetchedPets.map((pet) => pet.obs).toList());
+    if (fetchedPets.isNotEmpty) {
+      selectedPet.value = pets.first; // Tetapkan pet pertama sebagai selectedPet
+      print('Pets fetched: ${fetchedPets.length}');
+    } else {
+      // Jika tidak ada pet, Anda bisa menambahkan pet default atau menampilkan pesan
+      print('No pets fetched.');
+    }
   }
 
   void earnCoins(int amount) {
@@ -105,15 +115,15 @@ class GameController extends GetxController {
 
         switch (resource.type) {
           case 'food':
-            foodAmount.value++;
+            foodAmount.value += 1;
             print('Food amount: ${foodAmount.value}');
             break;
           case 'grooming':
-            groomingAmount.value++;
+            groomingAmount.value += 1;
             print('Grooming amount: ${groomingAmount.value}');
             break;
           case 'play':
-            playAmount.value++;
+            playAmount.value += 1;
             print('Play amount: ${playAmount.value}');
             break;
           default:
@@ -136,37 +146,73 @@ class GameController extends GetxController {
   }
 
   // Implement method to apply resource via drag and drop
-  void applyResourceToPet(String resourceType) {
+  void applyResourceToPet(String resourceType, int amount) {
+    if (pets.isEmpty) {
+      Get.snackbar('No Pet', 'You have no pets to apply resources to.',
+          snackPosition: SnackPosition.BOTTOM);
+      return;
+    }
+
+    Rx<Pet>? rxPet = selectedPet.value;
+    if (rxPet == null) {
+      Get.snackbar('No Pet Selected', 'Please select a pet first.',
+          snackPosition: SnackPosition.BOTTOM);
+      return;
+    }
+
+    Pet pet = rxPet.value;
+
     switch (resourceType) {
       case 'food':
-        pets.first.energy = (pets.first.energy + 10).clamp(0, 100);
-        pets.first.happiness = (pets.first.happiness + 5).clamp(0, 100);
-        print('Energy after feeding: ${pets.first.energy}');
-        print('Happiness after feeding: ${pets.first.happiness}');
+        if (foodAmount.value >= amount) {
+          pet.energy = (pet.energy + 10 * amount).clamp(0, 100);
+          pet.happiness = (pet.happiness + 5 * amount).clamp(0, 100);
+          foodAmount.value -= amount;
+          print('Applied $amount Food to ${pet.name}');
+        } else {
+          Get.snackbar('Insufficient Food', 'You do not have enough food.',
+              snackPosition: SnackPosition.BOTTOM);
+          return;
+        }
         break;
       case 'grooming':
-        pets.first.cleanliness = (pets.first.cleanliness + 10).clamp(0, 100);
-        pets.first.happiness = (pets.first.happiness + 5).clamp(0, 100);
-        print('Cleanliness after grooming: ${pets.first.cleanliness}');
-        print('Happiness after grooming: ${pets.first.happiness}');
+        if (groomingAmount.value >= amount) {
+          pet.cleanliness = (pet.cleanliness + 10 * amount).clamp(0, 100);
+          pet.happiness = (pet.happiness + 5 * amount).clamp(0, 100);
+          groomingAmount.value -= amount;
+          print('Applied $amount Grooming to ${pet.name}');
+        } else {
+          Get.snackbar('Insufficient Grooming', 'You do not have enough grooming kits.',
+              snackPosition: SnackPosition.BOTTOM);
+          return;
+        }
         break;
       case 'play':
-        pets.first.happiness = (pets.first.happiness + 10).clamp(0, 100);
-        pets.first.energy = (pets.first.energy - 5).clamp(0, 100);
-        print('Happiness after playing: ${pets.first.happiness}');
-        print('Energy after playing: ${pets.first.energy}');
+        if (playAmount.value >= amount) {
+          pet.happiness = (pet.happiness + 10 * amount).clamp(0, 100);
+          pet.energy = (pet.energy - 5 * amount).clamp(0, 100);
+          playAmount.value -= amount;
+          print('Applied $amount Play to ${pet.name}');
+        } else {
+          Get.snackbar('Insufficient Play', 'You do not have enough play resources.',
+              snackPosition: SnackPosition.BOTTOM);
+          return;
+        }
         break;
       default:
         print('Unknown resource type: $resourceType');
-        break;
+        Get.snackbar('Error', 'Unknown resource type.',
+            snackPosition: SnackPosition.BOTTOM);
+        return;
     }
-    Get.snackbar('Resource Applied', 'You applied $resourceType to ${pets.first.name}',
+
+    Get.snackbar('Resource Applied', 'You applied $amount $resourceType to ${pet.name}',
         snackPosition: SnackPosition.BOTTOM);
-    update(); // Memicu rebuild UI
+    rxPet.refresh(); // Memicu refresh pada pet yang di-update
   }
 
   // Method to select a pet (for navigation to environment)
-  void selectPet(Pet pet) {
+  void selectPet(Rx<Pet> pet) {
     selectedPet.value = pet;
     // Navigate to environment page
     Get.toNamed('/environment');

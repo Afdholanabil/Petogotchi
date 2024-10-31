@@ -14,12 +14,12 @@ class PetEnvironmentPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('${selectedPet!.name}\'s Environment'),
+        title: Text('${selectedPet!.value.name}\'s Environment'),
       ),
       body: GameWidget(
         game: PetEnvironmentGame(
           pet: selectedPet,
-          environment: selectedPet.environment, // Menggunakan environment dari pet
+          environment: selectedPet.value.environment, // Menggunakan environment dari pet
         ),
       ),
     );

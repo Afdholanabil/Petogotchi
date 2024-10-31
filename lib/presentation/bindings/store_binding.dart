@@ -1,4 +1,5 @@
 // lib/presentation/bindings/store_binding.dart
+
 import 'package:get/get.dart';
 import 'package:learn_1/data/data_source/pet_remote_data_source.dart';
 import 'package:learn_1/data/repositories/pet_repositories_impl.dart';
@@ -26,5 +27,7 @@ class StoreBinding extends Bindings {
           buyResource: Get.find<BuyResource>(),
           unlockPet: Get.find<UnlockPet>(),
         ));
+
+    print('StoreBinding dependencies initialized');
   }
 }

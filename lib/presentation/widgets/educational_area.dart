@@ -1,4 +1,5 @@
 // lib/presentation/widgets/educational_area.dart
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/game_controller.dart';

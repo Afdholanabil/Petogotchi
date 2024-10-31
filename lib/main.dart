@@ -1,3 +1,5 @@
+// lib/main.dart
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flame/flame.dart';
@@ -34,6 +36,7 @@ class PetogotchiApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
+      initialBinding: GameBinding(),
       initialRoute: '/',
       getPages: [
         GetPage(

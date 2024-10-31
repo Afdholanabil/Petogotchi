@@ -8,7 +8,8 @@ class Pet {
   int happiness;
   bool ringsClosed;
   DateTime? ringsClosedTime;
-  String environment; // Menambahkan environment
+  String environment;
+  String typeResource; // Tambahkan properti ini
 
   Pet({
     required this.name,
@@ -18,7 +19,8 @@ class Pet {
     this.happiness = 50,
     this.ringsClosed = false,
     this.ringsClosedTime,
-    this.environment = 'Home', // Default environment
+    this.environment = 'Home',
+    this.typeResource = 'food', // Default resource type
   });
 
   void feed() {
