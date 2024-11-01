@@ -6,9 +6,9 @@ class PetModel extends Pet {
   PetModel({
     required String name,
     required String image,
-    int energy = 50,
-    int cleanliness = 50,
-    int happiness = 50,
+    int energy = 80,
+    int cleanliness = 80,
+    int happiness = 60,
     bool ringsClosed = false,
     DateTime? ringsClosedTime,
     String environment = 'Home', // Default environment

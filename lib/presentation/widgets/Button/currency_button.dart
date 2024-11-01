@@ -11,16 +11,26 @@ class CurrencyButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(8),
+      padding: EdgeInsets.symmetric(vertical: 2, horizontal: 4), // Sesuaikan padding
       decoration: BoxDecoration(
         color: color.withOpacity(0.2),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
+        mainAxisSize: MainAxisSize.min, // Membatasi ukuran Row agar sesuai
         children: [
-          Text(label, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-          SizedBox(width: 4),
-          Icon(icon, color: color),
+          Flexible(
+            child: Text(
+              label,
+              style: TextStyle(
+                fontSize: 10, // Dikurangi ukuran font
+                fontWeight: FontWeight.bold,
+              ),
+              overflow: TextOverflow.ellipsis, // Memotong teks jika terlalu panjang
+            ),
+          ),
+          SizedBox(width: 2), // Sesuaikan spasi
+          Icon(icon, color: color, size: 14), // Dikurangi ukuran ikon
         ],
       ),
     );

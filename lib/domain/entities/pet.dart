@@ -14,9 +14,9 @@ class Pet {
   Pet({
     required this.name,
     required this.image,
-    this.energy = 50,
-    this.cleanliness = 50,
-    this.happiness = 50,
+    this.energy = 100,
+    this.cleanliness = 100,
+    this.happiness = 100,
     this.ringsClosed = false,
     this.ringsClosedTime,
     this.environment = 'Home',

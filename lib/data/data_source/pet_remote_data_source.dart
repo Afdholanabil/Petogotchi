@@ -17,12 +17,12 @@ class PetRemoteDataSourceImpl implements PetRemoteDataSource {
     await Future.delayed(Duration(seconds: 1)); // Simulate network delay
     return [
       PetModel(
-        name: 'Fluffy',
+        name: 'Fish',
         image: 'assets/images/pets/luna.png',
         environment: 'Home',
       ),
       PetModel(
-        name: 'Whiskers',
+        name: 'Cat',
         image: 'assets/images/pets/cat.png',
         environment: 'Park',
       ),

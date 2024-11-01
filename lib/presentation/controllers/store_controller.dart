@@ -1,11 +1,10 @@
-// lib/presentation/controllers/store_controller.dart
+
 import 'package:get/get.dart';
+import 'package:learn_1/domain/entities/pet.dart';
+import 'package:learn_1/domain/entities/resource.dart';
 import 'package:learn_1/domain/usecase/buy_resource.dart';
 import 'package:learn_1/domain/usecase/unlock_resource.dart';
-import 'package:learn_1/presentation/controllers/game_controller.dart';
-import '../../domain/entities/resource.dart';
-import '../../domain/entities/pet.dart';
-
+import '../controllers/game_controller.dart';
 
 class StoreController extends GetxController {
   var availableResources = <Resource>[].obs;
@@ -21,19 +20,20 @@ class StoreController extends GetxController {
     required this.unlockPet,
   });
 
-  @override
-  void onInit() {
-    super.onInit();
-    fetchStoreItems();
-  }
 
-  void fetchStoreItems() async {
-    // Fetch resources from repository
-    availableResources.assignAll([
-      Resource(name: 'Food Pack', cost: 50, type: 'food'),
-      Resource(name: 'Grooming Kit', cost: 30, type: 'grooming'),
-      Resource(name: 'Toy Set', cost: 40, type: 'play'),
-    ]);
+@override
+void onInit() {
+  super.onInit();
+  fetchStoreItems();
+}
+
+void fetchStoreItems() async {
+  // Fetch resources from repository
+  availableResources.assignAll([
+    Resource(name: 'Food Pack', cost: 50, type: 'food'),
+    Resource(name: 'Grooming Kit', cost: 30, type: 'grooming'),
+    Resource(name: 'Toy Set', cost: 40, type: 'play'),
+  ]);
 
     // Define Decorations and Accessories statically for prototyping
     availableDecorations.assignAll([
@@ -49,13 +49,11 @@ class StoreController extends GetxController {
     ]);
 
     // Fetch available pets
-    // lib/presentation/controllers/store_controller.dart
-availablePets.assignAll([
-  Pet(name: 'Snowball', image: 'assets/images/pets/snowball.png'),
-  Pet(name: 'Shadow', image: 'assets/images/pets/shadow.png'),
-  Pet(name: 'Luna', image: 'assets/images/pets/luna.png'),
-]);
-
+    availablePets.assignAll([
+      Pet(name: 'Snowball', image: 'assets/images/pets/snowball.png'),
+      Pet(name: 'Shadow', image: 'assets/images/pets/shadow.png'),
+      Pet(name: 'Luna', image: 'assets/images/pets/luna.png'),
+    ]);
   }
 
   void purchaseResource(Resource resource) async {

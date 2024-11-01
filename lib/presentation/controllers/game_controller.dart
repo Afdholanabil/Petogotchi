@@ -1,22 +1,20 @@
 // lib/presentation/controllers/game_controller.dart
-
 import 'dart:async';
 import 'package:get/get.dart';
 import 'package:learn_1/data/models/resource_model.dart';
+import 'package:learn_1/domain/entities/pet.dart';
+import 'package:learn_1/domain/entities/resource_data.dart';
+import 'package:learn_1/domain/entities/resource.dart';
 import 'package:learn_1/domain/usecase/apply_resource.dart';
 import 'package:learn_1/domain/usecase/buy_resource.dart';
 import 'package:learn_1/domain/usecase/unlock_resource.dart';
-import '../../domain/entities/pet.dart';
-import '../../domain/entities/resource.dart';
-import '../../domain/entities/resource_data.dart'; // Import ResourceData
 
 class GameController extends GetxController {
   // Observables
   var coins = 100.obs;
   var stars = 0.obs;
   var pets = <Rx<Pet>>[].obs; // Menggunakan Rx<Pet> untuk setiap pet
-  var selectedPet = Rx<Rx<Pet>?>(
-      null); // Ubah dari Rx<Pet?> menjadi Rx<Rx<Pet>?>
+  var selectedPet = Rx<Rx<Pet>?>(null); // Ubah dari Rx<Pet?> menjadi Rx<Rx<Pet>?>
 
   // Add resource amounts
   var foodAmount = 0.obs;
@@ -58,7 +56,8 @@ class GameController extends GetxController {
         pet.cleanliness = (pet.cleanliness - 1).clamp(0, 100);
         pet.happiness = (pet.happiness - 1).clamp(0, 100);
         rxPet.refresh(); // Memicu update untuk pet tertentu
-        print('Pet ${pet.name} stats updated: Energy=${pet.energy}, Cleanliness=${pet.cleanliness}, Happiness=${pet.happiness}');
+        print(
+            'Pet ${pet.name} stats updated: Energy=${pet.energy}, Cleanliness=${pet.cleanliness}, Happiness=${pet.happiness}');
       });
     });
   }
@@ -105,62 +104,44 @@ class GameController extends GetxController {
     }
   }
 
+  // Menambahkan metode buyResourceAction
   void buyResourceAction(ResourceModel resource) {
-    print('buyResourceAction called with resource: ${resource.name}');
-    try {
-      if (coins.value >= resource.cost) {
-        print('Sufficient coins: ${coins.value}, cost: ${resource.cost}');
-        coins.value -= resource.cost;
-        print('Coins after purchase: ${coins.value}');
-
-        switch (resource.type) {
-          case 'food':
-            foodAmount.value += 1;
-            print('Food amount: ${foodAmount.value}');
-            break;
-          case 'grooming':
-            groomingAmount.value += 1;
-            print('Grooming amount: ${groomingAmount.value}');
-            break;
-          case 'play':
-            playAmount.value += 1;
-            print('Play amount: ${playAmount.value}');
-            break;
-          default:
-            print('Unknown resource type: ${resource.type}');
-            break;
-        }
-        Get.snackbar('Purchase Successful', 'You bought ${resource.name}',
-            snackPosition: SnackPosition.BOTTOM);
-      } else {
-        print('Insufficient coins: ${coins.value}, required: ${resource.cost}');
-        Get.snackbar('Insufficient Coins', 'You do not have enough coins.',
-            snackPosition: SnackPosition.BOTTOM);
+    if (coins.value >= resource.cost) {
+      coins.value -= resource.cost;
+      switch (resource.type) {
+        case 'food':
+          foodAmount.value += 1;
+          break;
+        case 'grooming':
+          groomingAmount.value += 1;
+          break;
+        case 'play':
+          playAmount.value += 1;
+          break;
+        default:
+          print('Unknown resource type: ${resource.type}');
       }
-    } catch (e, stackTrace) {
-      print('Error in buyResourceAction: $e');
-      print(stackTrace);
-      Get.snackbar('Error', 'An unexpected error occurred.',
+      Get.snackbar('Resource Purchased',
+          'You purchased 1 ${resource.name}.',
+          snackPosition: SnackPosition.BOTTOM);
+    } else {
+      Get.snackbar('Insufficient Coins', 'You do not have enough coins.',
           snackPosition: SnackPosition.BOTTOM);
     }
   }
 
-  // Implement method to apply resource via drag and drop
-  void applyResourceToPet(String resourceType, int amount) {
-    if (pets.isEmpty) {
-      Get.snackbar('No Pet', 'You have no pets to apply resources to.',
+  // Mengubah metode untuk menerima pet target
+  void applyResourceToPet(Rx<Pet> targetPet, String resourceType, int amount) {
+    print(
+        'applyResourceToPet called with resourceType: $resourceType, amount: $amount for Pet: ${targetPet.value.name}');
+
+    if (targetPet.value == null) {
+      Get.snackbar('No Pet', 'Selected pet is null.',
           snackPosition: SnackPosition.BOTTOM);
       return;
     }
 
-    Rx<Pet>? rxPet = selectedPet.value;
-    if (rxPet == null) {
-      Get.snackbar('No Pet Selected', 'Please select a pet first.',
-          snackPosition: SnackPosition.BOTTOM);
-      return;
-    }
-
-    Pet pet = rxPet.value;
+    Pet pet = targetPet.value;
 
     switch (resourceType) {
       case 'food':
@@ -182,7 +163,8 @@ class GameController extends GetxController {
           groomingAmount.value -= amount;
           print('Applied $amount Grooming to ${pet.name}');
         } else {
-          Get.snackbar('Insufficient Grooming', 'You do not have enough grooming kits.',
+          Get.snackbar('Insufficient Grooming',
+              'You do not have enough grooming kits.',
               snackPosition: SnackPosition.BOTTOM);
           return;
         }
@@ -194,7 +176,8 @@ class GameController extends GetxController {
           playAmount.value -= amount;
           print('Applied $amount Play to ${pet.name}');
         } else {
-          Get.snackbar('Insufficient Play', 'You do not have enough play resources.',
+          Get.snackbar('Insufficient Play',
+              'You do not have enough play resources.',
               snackPosition: SnackPosition.BOTTOM);
           return;
         }
@@ -206,9 +189,10 @@ class GameController extends GetxController {
         return;
     }
 
-    Get.snackbar('Resource Applied', 'You applied $amount $resourceType to ${pet.name}',
+    Get.snackbar('Resource Applied',
+        'You applied $amount $resourceType to ${pet.name}',
         snackPosition: SnackPosition.BOTTOM);
-    rxPet.refresh(); // Memicu refresh pada pet yang di-update
+    targetPet.refresh(); // Memicu refresh pada pet yang di-update
   }
 
   // Method to select a pet (for navigation to environment)

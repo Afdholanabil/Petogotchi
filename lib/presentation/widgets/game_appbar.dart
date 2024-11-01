@@ -10,13 +10,8 @@ class GameAppBar extends StatelessWidget {
     final GameController gameController = Get.find<GameController>();
 
     return AppBar(
-      flexibleSpace: Column(
-        children: [
-          TopBar(),
-          // Additional game components can be added here
-        ],
-      ),
-      backgroundColor: Colors.blueAccent,
+      flexibleSpace: TopBar(), // Menggunakan TopBar tanpa membungkus dalam Column
+      backgroundColor: Colors.purple, // Sesuaikan warna agar konsisten dengan TopBar
       elevation: 4.0,
     );
   }
